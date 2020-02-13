@@ -67,13 +67,13 @@
             </form>
         </div>
     </div>
-
+    <script src="./libs/http.js"></script>
     <script>
         $(function() {
             // 一进到页面就发送请求获取个人数据
             // 项目基地址 http://localhost:8080/api/v1
             $.ajax({
-                url: 'http://localhost:8080/api/v1/admin/user/detail',
+                url: BigNew.user_detail,
                 success: function(res) {
                     if (res.code == 200) {
                         for (var key in res.data) {
@@ -98,7 +98,7 @@
 
                 $.ajax({
                     type: 'post',
-                    url: 'http://localhost:8080/api/v1/admin/user/edit',
+                    url: BigNew.user_edit,
                     data: fd,
                     contentType: false,
                     processData: false,
