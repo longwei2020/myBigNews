@@ -43,13 +43,39 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal"
-                                data-target="#myModal">新增分类</a>
+                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal" data-target="#myModal">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
+    <script id="art_temp" type="text/html">
+        {{each data v}}
+        <tr>
+            <td>{{v.name}}</td>
+            <td>{{v.slug}}</td>
+            <td class="text-center">
+                <a href="javascript:void(0)" data-toggle="modal" data-id="{{v.id}}" class=" btn btn-info btn-xs">编辑</a>
+                <a href="javascript:void(0)" data-id="{{v.id}}" class="btn btn-danger btn-xs">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script>
+        $(function() {
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/admin/category/list',
+                success: function(res) {
+                    // console.log(res);
+                    if (res.code == 200) {
+                        var resHtml = template('art_temp', res);
+                        $('tbody').html(resHtml);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
 
 </html>
