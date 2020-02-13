@@ -43,11 +43,40 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal" data-target="#myModal">新增分类</a>
+                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal" data-target="#exampleModal">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
             </table>
+        </div>
+    </div>
+    <!-- 模态框 -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">新增分类</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <!-- 隐藏域 -->
+                        <input type="hidden" id="cateGoryId">
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">分类名称:</label>
+                            <input type="text" name="name" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">分类别名:</label>
+                            <input type="text" name="slug" class="form-control" id="message-text">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="reset" data-dismiss="modal">取消</button>
+                    <button type="button" id="btnAddOrEdit" class="btn btn-primary">确认</button>
+                </div>
+            </div>
         </div>
     </div>
     <!-- 使用模板引擎 -->
@@ -57,8 +86,8 @@
             <td>{{v.name}}</td>
             <td>{{v.slug}}</td>
             <td class="text-center">
-                <a href="javascript:void(0)" data-toggle="modal" data-id="{{v.id}}" class=" btn btn-info btn-xs">编辑</a>
-                <a href="javascript:void(0)" data-id="{{v.id}}" class="btn btn-danger btn-xs">删除</a>
+                <a href="javascript:void(0)" data-target="#exampleModal" data-toggle="modal" data-id="{{v.id}}" class=" btn btn-info btn-xs">编辑</a>
+                <a href="javascript:void(0)" data-id="{{v.id}}" class="btn btn-danger btn-xs btn-delete">删除</a>
             </td>
         </tr>
         {{/each}}
@@ -67,18 +96,137 @@
     <script>
         $(function() {
             // 一进人页面就发送ajax请求
-            $.ajax({
-                url: BigNew.category_list,
-                success: function(res) {
-                    // console.log(res);
-                    if (res.code == 200) {
-                        // 调用模板引擎
-                        var resHtml = template('art_temp', res);
-                        // 把获得的数据渲染在页面上
-                        $('tbody').html(resHtml);
+            dataLoad();
+
+            function dataLoad() {
+                $.ajax({
+                    url: BigNew.category_list,
+                    success: function(res) {
+                        // console.log(res);
+                        if (res.code == 200) {
+                            // 调用模板引擎
+                            var resHtml = template('art_temp', res);
+                            // 把获得的数据渲染在页面上
+                            $('tbody').html(resHtml);
+                        }
                     }
+                });
+            }
+
+            $('#exampleModal').on('show.bs.modal', function(e) {
+                //获取模态框事件触发源
+                var target = e.relatedTarget;
+                // console.log(e.relatedTarget);
+                if (target == $('#xinzengfenlei')[0]) {
+                    //执行新增分类逻辑
+                    // alert('你点击了新增按钮');
+                    //(1)设置按钮文本为新增
+                    $('#exampleModalLabel').text('新增分类');
+                    $('#btnAddOrEdit').text('新增').addClass('btn-primary').removeClass('btn-success');
+                } else {
+                    //执行编辑分类逻辑
+                    // alert('你点击了编辑按钮');
+                    //(1)设置按钮文本为编辑
+                    $('#exampleModalLabel').text('编辑分类');
+                    $('#btnAddOrEdit').text('编辑').addClass('btn-success').removeClass('btn-primary');
+                    // 点击编辑按钮后获取当前要获取的信息渲染在页面
+                    $('#recipient-name').val($(target).parent().prev().prev().text().trim());
+                    $('#message-text').val($(target).parent().prev().text().trim());
+                    $('#cateGoryId').val($(target).attr('data-id'));
                 }
             });
+            // 给取消按钮添加一个点击事件调用form表单的reset方法把表单的内容重置
+            $('#reset').on('click', function() {
+                document.querySelector('form').reset();
+            });
+            // 为新增或者编辑按钮添加点击事件
+            $('#btnAddOrEdit').on('click', function() {
+                // 判断用户点击的是新增按钮还是编辑按钮
+                if ($(this).hasClass('btn-primary')) {
+                    // 获取用户输入的新增内容或者修改的值并且去除左右空格
+                    var cateGoryName = $('#recipient-name').val().trim();
+                    var cateGorySlug = $('#message-text').val().trim();
+                    // 发送ajax请求新增
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_add,
+                        data: {
+                            name: cateGoryName,
+                            slug: cateGorySlug
+                        },
+                        success: function(res) {
+                            // 判断请求是否成功
+                            if (res.code == 201) {
+                                alert('新增成功');
+                                $('#exampleModal').modal('hide');
+                                // 刷新页面
+                                dataLoad();
+                                // input框内容清空
+                                $('#recipient-name').val("");
+                                $('#message-text').val("")
+                            }
+                        }
+                    });
+                } else {
+                    // 获取隐藏域的id
+                    // var cateGoryId = $('#cateGoryId').val();
+                    // 获取用户新输入的内容
+                    // var cateGoryName = $('#recipient-name').val().trim();
+                    // var cateGorySlug = $('#message-text').val().trim();
+                    var data = $('#exampleModal form').serialize();
+                    // console.log(data);
+                    // return;
+
+                    // 发送请求
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_edit,
+                        // data: {
+                        //     name: cateGoryName,
+                        //     id: cateGoryId,
+                        //     slug: cateGorySlug
+                        // },
+                        data: data,
+                        success: function(res) {
+                            // console.log(res);
+                            if (res.code == 200) {
+                                alert('编辑成功');
+                                $('#exampleModal').modal('hide');
+                                // 刷新页面
+                                dataLoad();
+                            }
+                        }
+                    });
+                }
+            });
+            // 事件委托删除数据
+            $('tbody').on('click', '.btn-delete', function() {
+                // 把this赋值给that
+                var that = $(this);
+                // 获取当前点击的id
+                var id = $(this).attr('data-id');
+                // 判断是否需要删除
+                if (confirm('你确定要删除吗？')) {
+                    // 发送请求
+                    $.ajax({
+                        type: 'post',
+                        url: BigNew.category_delete,
+                        data: {
+                            id: id
+                        },
+                        success: function(res) {
+                            if (res.code == 204) {
+                                // 刷新数据
+                                // dataLoad();
+                                // console.log($(that));
+                                $(that).parent().parent().remove();
+
+                            }
+                        }
+                    });
+                }
+            });
+
         });
     </script>
 </body>
