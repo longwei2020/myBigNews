@@ -62,17 +62,21 @@
     <script>
         $(function() {
             $('.input_sub').click(function(e) {
+                // 阻止页面默认跳转
                 e.preventDefault();
-
+                // 获取用户输入的账号密码
                 var username = $('.input_txt').val().trim();
                 var password = $('.input_pass').val().trim();
-
+                // 判断用户输入的是否为空
                 if (username == '' || password == '') {
+                    // 调用bootstrap框架中弹出模态框
                     $('#myModal').modal();
+                    // 提示用户输入不能为空
                     $('.modal-body').text('账号密码不能为空');
+                    // 阻断后面的代码运行
                     return;
                 };
-
+                // 发送ajax请求验证用户输入的是否正确
                 $.ajax({
                     type: 'post',
                     url: BigNew.user_login,
@@ -82,16 +86,22 @@
                         password: password
                     },
                     success: function(res) {
-                        console.log(res);
-
+                        // console.log(res);
+                        // 判断请求是否成功
                         if (res.code == 200) {
+                            // 调用模态框
                             $('#myModal').modal()
+                                // 提示用户
                             $('.modal-body').text(res.msg);
+                            // 启用模态框事件
                             $('#myModal').on('hidden.bs.modal', function(e) {
-                                localStorage.setItem('token', res.token)
+                                // 存储token令牌的值到本地存储
+                                localStorage.setItem('token', res.token);
+                                // 跳转页面
                                 window.location.href = './index.html';
                             });
                         } else {
+                            // 请求失败后提示用户
                             $('#myModal').modal()
                             $('.modal-body').text(res.msg);
                         }

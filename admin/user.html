@@ -76,26 +76,34 @@
                 url: BigNew.user_detail,
                 success: function(res) {
                     if (res.code == 200) {
+                        // 利用for循环遍历data数据
                         for (var key in res.data) {
+                            // 把数据渲染到相应的位置
                             $('input.' + key).val(res.data[key]);
                         };
+                        // 设置图片预览的图片url
                         $('.user_pic').attr('src', res.data.userPic);
                     }
                 }
             });
-
+            // 设置图片预览的onchange事件
             $('#exampleInputFile').on('change', function() {
+                // 获取到用户新选择的图片
                 var file1 = this.files[0];
+                // 自己制造一个当前用户选择的图片的地址src
                 var url = URL.createObjectURL(file1);
+                // 设置图片预览的src并显示当前用户选择的图片
                 $('.user_pic').attr('src', url);
             });
-
+            // 给修改按钮添加点击事件
             $('.btn-edit').on('click', function(e) {
+                // 阻止默认跳转
                 e.preventDefault();
-
+                // 获取form表单
                 var form1 = document.querySelector('form');
+                // new一个FormData对象
                 var fd = new FormData(form1);
-
+                // 发送ajax请求
                 $.ajax({
                     type: 'post',
                     url: BigNew.user_edit,
@@ -103,7 +111,9 @@
                     contentType: false,
                     processData: false,
                     success: function(res) {
+                        // 判断数据是否成功
                         if (res.code == 200) {
+                            // 由于是iframe嵌套页面所以要刷新父业面就得在前面加parent
                             parent.window.location.reload();
                             alert('更新成功');
 

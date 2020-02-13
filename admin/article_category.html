@@ -50,6 +50,7 @@
             </table>
         </div>
     </div>
+    <!-- 使用模板引擎 -->
     <script id="art_temp" type="text/html">
         {{each data v}}
         <tr>
@@ -65,12 +66,15 @@
     <script src="./libs/http.js"></script>
     <script>
         $(function() {
+            // 一进人页面就发送ajax请求
             $.ajax({
                 url: BigNew.category_list,
                 success: function(res) {
                     // console.log(res);
                     if (res.code == 200) {
+                        // 调用模板引擎
                         var resHtml = template('art_temp', res);
+                        // 把获得的数据渲染在页面上
                         $('tbody').html(resHtml);
                     }
                 }

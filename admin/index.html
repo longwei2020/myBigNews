@@ -57,17 +57,20 @@
     <script src="./libs/http.js"></script>
     <script>
         $(function() {
+            // 一进人页面就发送请求获取管理员数据
             $.ajax({
                 type: 'get',
                 url: BigNew.user_info,
                 success: function(res) {
                     // console.log(res);
+                    // 将获取到的数据渲染到页面对应的位置
                     $('.user_info>img').attr('src', res.data.userPic);
                     $('.user_center_link>img').attr('src', res.data.userPic);
                     $('.user_info>span').text('欢迎  ' + res.data.nickname);
 
                 }
             });
+            // 给退出按钮添加点击事件
             $('.logout').click(function() {
                 //2.1 删除token
                 localStorage.removeItem('token');
@@ -76,17 +79,22 @@
             });
             // 左侧导航栏的点击事件
             $('div.level01').on('click', function() {
+                // 给当前点击的div标签添加active类其它兄弟元素则删除active类
                 $(this).addClass('active').siblings('div').removeClass('active');
-
+                // 判断点钱点击的div是否为第二个
                 if ($(this).index() == 1) {
+                    // 当点击的是这个div就让这个div下面的ul显示就隐藏，影藏就显示
                     $('ul.level02').slideToggle();
+                    // 给当前这个div的后代b标签添加一个rotate0类
                     $(this).find('b').toggleClass('rotate0');
+                    // 当点击这个div后就触发这个div下面的兄弟ul下面的第一个li标签的点击事件
                     $('ul.level02>li').first().trigger('click');
 
                 }
             });
-
+            // 给ul里的每个li添加点击事件
             $('ul.level02>li').on('click', function() {
+                // 给当前点击的这个li添加一个active类其它li则删除这个类
                 $(this).addClass('active').siblings('li').removeClass('active');
             });
 
