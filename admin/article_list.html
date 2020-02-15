@@ -138,19 +138,19 @@
                             var resHtml = template('articleList_temp', backData);
                             $('tbody').html(resHtml);
                             // 判断backData.data.totalPage是否有数据并且是否传入了回调函数
-                            if (backData.data.data.length != 0 && callBack != null) {
+                            if (backData.data.totalPage != 0 && callBack != null) {
                                 // 如果有数据的话就显示页码结构
                                 $('#pagination-demo').show();
                                 // 页码结构下面的没有数据提示隐藏
                                 $('#pagination-demo').next().hide();
                                 callBack(backData);
-                            }
-                            // 判断当前页码是否在最后一页，并且最后一页没有数据
-                            else if (backData.data.totalPage == myPage - 1 && backData.data.data.length == 0) {
-                                //  最后一页没有数据就页数减1然后当前页码变为最后一页的前一页
-                                myPage -= 1;
-                                $('#pagination-demo').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
-                            } else if (backData.data.data.length == 0) {
+                                // }
+                                // // 判断当前页码是否在最后一页，并且最后一页没有数据
+                                // else if (backData.data.totalPage == myPage - 1 && backData.data.data.length == 0) {
+                                //     //  最后一页没有数据就页数减1然后当前页码变为最后一页的前一页
+                                //     myPage -= 1;
+                                //     $('#pagination-demo').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
+                            } else if (backData.data.totalPage == 0) {
                                 // 如果没有数据就隐藏页码结构
                                 $('#pagination-demo').hide();
                                 // 显示没有数据提示
@@ -211,7 +211,12 @@
                                 // 重新刷新当前页面（myPage等于当前点击页面）
                                 getData(myPage, function(backData) {
                                     // 动态刷新总页数
-                                    $('#pagination-demo').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
+                                    if (backData.data.totalPage == myPage || myPage == 1) {
+
+                                        $('#pagination-demo').twbsPagination('changeTotalPages', backData.data.totalPage, myPage);
+                                    } else {
+                                        $('#pagination-demo').twbsPagination('changeTotalPages', backData.data.totalPage, myPage - 1);
+                                    }
                                 });
                             }
                         }

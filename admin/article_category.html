@@ -155,6 +155,8 @@
                             slug: cateGorySlug
                         },
                         success: function(res) {
+                            console.log(res);
+
                             // 判断请求是否成功
                             if (res.code == 201) {
                                 alert('新增成功');
