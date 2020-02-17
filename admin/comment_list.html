@@ -202,7 +202,7 @@
                         perpage: 6
                     },
                     success: function(backData) {
-                        console.log(backData);
+                        // console.log(backData);
                         if (backData.code == 200) {
                             var resHtml = template('comment_temp', backData);
                             $('tbody').html(resHtml);
