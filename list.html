@@ -137,11 +137,11 @@
 
             <div id="pagination" class="page"></div>
             <script>
-                $(function () {
+                $(function() {
                     $("#pagination").pagination({
                         currentPage: 2,
                         totalPage: 8,
-                        callback: function (current) {
+                        callback: function(current) {
                             alert('ok!');
                         }
                     });
@@ -227,6 +227,67 @@
     </div>
     <!-- 导包template -->
     <script src="./js/template-web.js"></script>
+    <!-- 新闻模板 -->
+    <script id="search_temp" type="text/html">
+        {{each data.data v}}
+        <div class="common_news_list">
+            <a href="./article.html?id={{ v.id }}" class="list_pic"><img src="{{ v.cover }}" alt=""></a>
+            <h4><a href="./article.html?id={{ v.id }}">{{ v.title }}</a></h4>
+            <p>{{v.intro}}</p>
+            <div class="new_info">
+                <span>标签：{{ v.category }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<i class="fa fa-eye"></i>&nbsp;阅读( {{ v.read }}
+                )&nbsp;&nbsp;&nbsp;<i class="fa fa-commenting"></i>&nbsp;评论( {{ v.comments }} )</span>
+                <b>{{ v.date }}</b>
+            </div>
+        </div>
+        {{ /each }}
+    </script>
+    <script>
+        $(function() {
+            // 获取用户是如何进入此页面
+            var value1 = window.location.search.split('=')[0];
+            var value2 = window.location.search.split('=')[1];
+            console.log(value2);
+
+            if (value1 == "") {
+                // 这是直接输入页面url进来的
+                window.location.href = './index.html';
+            } else if (value1 == '?id') {
+                // 这是点击id进入此页面的
+                $.ajax({
+                    url: 'http://localhost:8080/api/v1/index/search',
+                    data: {
+                        type: value2
+                    },
+                    success: function(res) {
+                        // console.log(res);
+                        if (res.data.data.length > 0) {
+                            var resHtml = template('search_temp', res);
+                            $('div.left_con.setfr').html('<div class="list_title"><h3>' + res.data.data[0].category + '</h3></div>' + resHtml);
+                        } else {
+                            $('div.left_con.setfr').html('<div class="list_title"><h3>没有数据</h3></div>');
+                        }
+                    }
+                });
+            } else {
+                //这里就是点击搜索按钮过来的.
+                value2 = decodeURI(value2); //把通过url传过来的搜索关键词 解码
+                console.log(value2);
+
+                $.ajax({
+                    type: 'get',
+                    url: 'http://localhost:8080/api/v1/index/search',
+                    data: {
+                        key: value2
+                    },
+                    success: function(backData) {
+                        var resHtml = template('search_temp', backData);
+                        $('div.left_con.setfr').html('<div class="list_title"><h3>搜索词:' + value2 + '</h3></div>' + resHtml);
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

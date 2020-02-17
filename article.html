@@ -59,14 +59,13 @@
                 当前位置： <a href="#">首页</a> &gt; <a href="#">科技</a> &gt; 文章详情
             </div>
             <h3 class="article_title">马斯克的新花样？连接人脑和电脑的初创公司又筹了一笔钱</h3>
-            <div class="article_info">杰克 发布于 2019-05-08 07:08:46&nbsp;&nbsp;&nbsp;分类: 奇趣事&nbsp;&nbsp;&nbsp;阅读:
-                (98)&nbsp;&nbsp;&nbsp;评论: (0)</div>
+            <div class="article_info">杰克 发布于 2019-05-08 07:08:46&nbsp;&nbsp;&nbsp;分类: 奇趣事&nbsp;&nbsp;&nbsp;阅读: (98)&nbsp;&nbsp;&nbsp;评论: (0)</div>
             <div class="article_con">
 
                 <p>“上天入地”还不够？硅谷“钢铁侠”马斯克名下一家低调的公司最近又融了一大笔钱。</p>
 
-                <p>马斯克投资的一家小型且不为人熟知的脑机接口（brain-computer
-                    interface）公司Neuralink披露，该公司融到了3900万美元，虽然不及公司计划的融资额5100万美元，但也比上次的融资多了不少。</p>
+                <p>马斯克投资的一家小型且不为人熟知的脑机接口（brain-computer interface）公司Neuralink披露，该公司融到了3900万美元，虽然不及公司计划的融资额5100万美元，但也比上次的融资多了不少。
+                </p>
 
                 <p>两年前该公司曾计划融资1亿美元，但只拿到了2700万美元的融资。</p>
 
@@ -76,8 +75,7 @@
 
             </div>
             <div class="article_links">
-                上一篇： <a href="#">世界第一台可以玩游戏的冰箱</a><br>
-                下一篇： <a href="#">世界第一个可以玩游戏的马桶、世界上第一个可以玩游戏的茶杯</a>
+                上一篇： <a href="#">世界第一台可以玩游戏的冰箱</a><br> 下一篇： <a href="#">世界第一个可以玩游戏的马桶、世界上第一个可以玩游戏的茶杯</a>
             </div>
 
             <form action="" class="comment_form">
@@ -208,7 +206,122 @@
     <!-- 引入模板引擎js文件 -->
     <script src="./js/template-web.js"></script>
     <script src="./js/jquery-1.12.4.min.js"></script>
+    <!-- 引入模板引擎js文件 -->
+    <script src="./js/template-web.js"></script>
+    <!-- 准备一个文章详细信息info的模板 -->
+    <script id="info" type="text/html">
+        {{data.author}} 发布于 {{data.date}} 分类: {{data.category}} 阅读:({{data.read}}) 评论: ({{data.comments}})
+    </script>
+    <!-- 准备一个文章评论 模板 -->
+    <script id="comment_temp" type="text/html">
+        {{each data v}}
+        <div class="comment_detail_list">
+            <div class="person_pic fl">{{v.author.substring(0,1)}}</div>
+            <div class="name_time fl"><b>{{v.author}}</b><span>{{v.date}}</span></div>
+            <div class="comment_text fl">
+                {{v.content}}
+            </div>
+        </div>
+        {{/each}}
+    </script>
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script>
+        //入口函数
+        $(function() {
+            //一进来就获取传递过来的文章id,根据文章id获取到文章的详细信息
+            var articleId = window.location.search.split("=")[1];
+            if (articleId == undefined) {
+                //如果直接输入网址进到这个文章详情页,就打回到首页. 
+                window.location.href = "./index.html";
+            } else {
+                //点击链接进来的文章详情页,那就发送ajax
+                $.ajax({
+                    type: 'get',
+                    url: 'http://localhost:8080/api/v1/index/article',
+                    data: {
+                        id: articleId
+                    },
+                    success: function(backData) {
+                        console.log(backData);
+                        if (backData.code == 200) {
+                            $('.breadcrumb').children('a').eq(1).text(backData.data.category); //文章类别
+                            $('.article_title').text(backData.data.title); //文章标签
+                            $('.article_con').html(backData.data.content); //文章内容
+                            //处理一下没有上一篇
+                            if (backData.data.prev != null) {
+                                $('.article_links>a').eq(0).text(backData.data.prev.title);
+                                $('.article_links>a').eq(0).attr('href', './article.html?id=' + backData.data.prev.id);
+                            } else {
+                                $('.article_links>a').eq(0).text('没有上一篇');
+                                $('.article_links>a').eq(0).on('click', function(e) {
+                                    e.preventDefault();
+                                });
+                            }
+                            //处理没有下一篇
+                            if (backData.data.next != null) {
+                                $('.article_links>a').eq(1).text(backData.data.next.title);
+                                $('.article_links>a').eq(1).attr('href', './article.html?id=' + backData.data.next.id);
+                            } else {
+                                $('.article_links>a').eq(1).text('没有下一篇');
+                                $('.article_links>a').eq(1).on('click', function(e) {
+                                    e.preventDefault();
+                                });
+                            }
+                            //文章的详细说明(作者,发表时间,阅读量,评论量)
+                            var resHtml = template('info', backData);
+                            $('.article_info').html(resHtml);;
+                        }
+                    }
+                });
 
+                //二:显示该文章的评论
+                $.ajax({
+                    type: 'get',
+                    url: 'http://localhost:8080/api/v1/index/get_comment',
+                    data: {
+                        articleId: articleId
+                    },
+                    success: function(backData) {
+                        console.log(backData);
+                        if (backData.code == 200) {
+                            $('.comment_count').text(backData.data.length + "条评论");
+                            var resHtml = template('comment_temp', backData);
+                            $('.comment_list_con').html(resHtml);
+                        }
+                    }
+                });
+
+                //三:给评论按钮设置一个点击事件. 发表评论
+                $('.comment_sub').on('click', function(e) {
+                    e.preventDefault();
+                    //获取用户输入的用户名和评论内容.
+                    var comment_name = $('.comment_name').val().trim();
+                    var comment_input = $('.comment_input').val().trim();
+                    //发送ajax
+                    $.ajax({
+                        type: 'post',
+                        url: 'http://localhost:8080/api/v1/index/post_comment',
+                        data: {
+                            author: comment_name,
+                            content: comment_input,
+                            articleId: articleId
+                        },
+                        success: function(backData) {
+                            //console.log(backData);
+                            if (backData.code == 201) {
+                                alert('发表评论成功,等待管理员审核!');
+                                $('.comment_name').val("");
+                                $('.comment_input').val("");
+                            }
+                        }
+                    });
+                })
+            }
+
+
+
+        })
+    </script>
 </body>
 
 </html>
